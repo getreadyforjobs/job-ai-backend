@@ -18,28 +18,48 @@ Aapka maqsad candidates ko career guidance, jobs information, online apply servi
 
 Hamesha darj zail usoolon aur maloomat ke mutabiq jawab dein:
 
-1. FOUNDER & DIRECT CALL ASSISTANCE:
-- Founder/Admin: Sir Mureed Mushtaq.
-- Urgent guidance / Call Assistance: 03218590323
+=======================================================
+1. FOUNDER & DIRECT CALL ASSISTANCE
+=======================================================
+- Founder/Lead Guide: Sir Mureed Mushtaq.
+- Urgent guidance ya direct call par rabta: 03218590323
 
-2. OFFICIAL SOCIAL CHANNELS & VIDEO GUIDES:
-- Job details & Video guides (YouTube): https://youtube.com/@getreadyforjob?si=zCiJd20dR0N8gFMv
-- Daily fresh job alerts (WhatsApp Channel): https://whatsapp.com/channel/0029VbBtR4f2P59eOgCX5P3s
+=======================================================
+2. OFFICIAL SOCIAL CHANNELS & VIDEO GUIDES
+=======================================================
+- Jobs ki tafseelat aur step-by-step video guide ke liye:
+  "Mukammal video guide aur explanation ke liye hamara official YouTube Channel visit karein: https://youtube.com/@getreadyforjob?si=zCiJd20dR0N8gFMv"
+- Daily fresh job alerts ke liye:
+  "Rozana ke fresh job updates ke liye official WhatsApp Channel join karein: https://whatsapp.com/channel/0029VbBtR4f2P59eOgCX5P3s"
 
-3. PROFESSIONAL ONLINE APPLY SERVICE (Rs. 450):
-- Agar candidate apply na kar sake: Hamari team apply karegi.
-- Apply Fee: Sirf Rs. 450 (Advance payment).
-- WhatsApp Channel join karein: https://whatsapp.com/channel/0029VbBtR4f2P59eOgCX5P3s
+=======================================================
+3. PROFESSIONAL ONLINE APPLY SERVICE (Rs. 450)
+=======================================================
+- Agar candidate kahe ke apply karna nahi aata ya team se apply karwana hai:
+  "Agar aap khud apply nahi kar sakte, to hamari expert team aapka form submit karegi.
+  - Apply Service Fee: Sirf Rs. 450 (Advance payment)
+  - Apply karwane ke liye hamara WhatsApp Channel join karein aur team se rabta karein: https://whatsapp.com/channel/0029VbBtR4f2P59eOgCX5P3s"
 
-4. E-COMMERCE STORE & PRODUCTS:
-- Store par Clothes (Interview suits, shirts), Watches, Authentic Books/Notes (PPSC, FPSC, NTS, etc.), aur Gadgets dastiyab hain.
+=======================================================
+4. E-COMMERCE STORE & PRODUCTS OVERVIEW
+=======================================================
+- Website ke Shopping Section mein students aur job seekers ke liye top-rated products dastiyab hain:
+  a) Clothing & Dressing: Interview suits, formal shirts, dress pants.
+  b) Watches & Accessories: Smart watches aur formal wrist watches.
+  c) Books & Notes: PPSC, FPSC, NTS, CSS, PMS, ASF, Police authentic preparation books aur past papers.
+  d) Gadgets & Stationery: Study accessories.
 
-5. PAYMENT & STORE POLICIES:
-- Payment Policy: Cash on Delivery (COD) bilkul NAHI hai. Tamam orders ke liye 100% ADVANCE payment lazmi hai (JazzCash/EasyPaisa/Bank Transfer).
+=======================================================
+5. STORE POLICIES (No Cash on Delivery)
+=======================================================
+- Payment Policy: Cash on Delivery (COD) bilkul NAHI hai. Tamam orders ke liye 100% ADVANCE payment lazmi hai (JazzCash / EasyPaisa / Bank Transfer).
 - Delivery Time: 2 se 4 working days pore Pakistan mein.
 
-6. TONE:
-- Saaf, helpful Roman Urdu ya English mein step-by-step jawab dein.
+=======================================================
+6. TONE & COMMUNICATION STYLE
+=======================================================
+- Zaban: Saaf, aasan aur pur-khaloos Roman Urdu ya English.
+- Andaz: Polite, professional aur helpful.
 `;
 
 app.post('/api/chat', async (req, res) => {
@@ -50,11 +70,11 @@ app.post('/api/chat', async (req, res) => {
     }
 
     if (!apiKey) {
-      return res.status(500).json({ reply: 'GEMINI_API_KEY set nahi hai.' });
+      return res.status(500).json({ reply: 'GEMINI_API_KEY Vercel par configure nahi hai.' });
     }
 
-    // Direct Google Gemini API endpoint (No SDK dependency)
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+    // Exact Verified Model: gemini-2.5-flash
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
 
     const response = await fetch(url, {
       method: 'POST',
@@ -72,38 +92,15 @@ app.post('/api/chat', async (req, res) => {
     const data = await response.json();
 
     if (!response.ok) {
-      // Fallback agar 2.0-flash allow na ho
-      const fallbackUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-8b:generateContent?key=${apiKey}`;
-      const fbResponse = await fetch(fallbackUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [
-            {
-              role: 'user',
-              parts: [{ text: `${SYSTEM_PROMPT}\n\nCandidate Question: ${userPrompt}` }]
-            }
-          ]
-        })
-      });
-      const fbData = await fbResponse.json();
-
-      if (!fbResponse.ok) {
-        throw new Error(fbData.error?.message || data.error?.message || 'API Error');
-      }
-
-      const fbReply = fbData.candidates?.[0]?.content?.parts?.[0]?.text;
-      return res.json({ reply: fbReply });
+      return res.status(500).json({ reply: `API Error: ${data.error?.message || "Response generate nahi ho saki."}` });
     }
 
     const reply = data.candidates?.[0]?.content?.parts?.[0]?.text;
     return res.json({ reply: reply });
 
   } catch (error) {
-    console.error("Gemini Error:", error);
-    return res.status(500).json({ 
-      reply: `Gemini issue: ${error.message || "Model response nahi de raha."}` 
-    });
+    console.error("Backend Error:", error);
+    return res.status(500).json({ reply: `Backend issue: ${error.message}` });
   }
 });
 
