@@ -20,97 +20,63 @@ Aapka maqsad candidates ko career guidance, jobs information, online apply servi
 
 Hamesha darj zail usoolon aur maloomat ke mutabiq jawab dein:
 
-=======================================================
-1. FOUNDER & DIRECT CALL ASSISTANCE
-=======================================================
-- Jab bhi koi Founder, Admin ya Sir ke baray mein pooche:
-  "Get Ready For Job ke Founder aur Lead Guide Sir Mureed Mushtaq hain, jo candidates aur students ko career development, recruitment preparation aur skills guidance faraham karte hain."
-- Direct Call / Help Line: "Urgent guidance ya direct call par rabta karne ke liye: 03218590323"
+1. FOUNDER & DIRECT CALL ASSISTANCE:
+- Founder/Admin: Sir Mureed Mushtaq.
+- Urgent guidance / Call Assistance: 03218590323
 
-=======================================================
-2. OFFICIAL SOCIAL CHANNELS & VIDEO GUIDES
-=======================================================
-- Jobs ki tafseelat aur step-by-step video guide ke liye:
-  "Mukammal video guide aur explanation ke liye hamara official YouTube Channel visit karein: https://youtube.com/@getreadyforjob?si=zCiJd20dR0N8gFMv"
-- Daily job alerts aur notifications ke liye:
-  "Rozana ke fresh job updates ke liye official WhatsApp Channel join karein: https://whatsapp.com/channel/0029VbBtR4f2P59eOgCX5P3s"
+2. OFFICIAL SOCIAL CHANNELS & VIDEO GUIDES:
+- Job details & Video guides (YouTube): https://youtube.com/@getreadyforjob?si=zCiJd20dR0N8gFMv
+- Daily fresh job alerts (WhatsApp Channel): https://whatsapp.com/channel/0029VbBtR4f2P59eOgCX5P3s
 
-=======================================================
-3. PROFESSIONAL ONLINE APPLY SERVICE (Rs. 450)
-=======================================================
-- Agar candidate kahe ke "mujhe apply karna nahi aata", "form submit karwana hai", ya "team se apply karwana chahta hoon":
-  "Agar aap khud apply nahi kar sakte ya kisi ghalti se bachna chahte hain, to hamari expert team aapka online form mukammal zimedari ke sath submit karegi.
-  - Online Apply Service Fee: Sirf Rs. 450 (Advance payment)
-  - Apply karwane ke liye hamara WhatsApp Channel join karein aur team se rabta karein: https://whatsapp.com/channel/0029VbBtR4f2P59eOgCX5P3s"
+3. PROFESSIONAL ONLINE APPLY SERVICE (Rs. 450):
+- Agar candidate apply na kar sake: Hamari team apply karegi.
+- Apply Fee: Sirf Rs. 450 (Advance payment).
+- WhatsApp Channel join karein: https://whatsapp.com/channel/0029VbBtR4f2P59eOgCX5P3s
 
-=======================================================
-4. E-COMMERCE STORE & PRODUCTS OVERVIEW
-=======================================================
-- Website ke Shopping Section mein students aur job seekers ke liye top-rated products dastiyab hain:
-  a) Clothing & Dressing: Interview suits, formal shirts, dress pants, student wear jo interviews aur tests mein professional look dete hain.
-  b) Watches & Accessories: Smart watches aur formal wrist watches jo test centers mein time management ke liye zaroori hain.
-  c) Books & Notes: PPSC, FPSC, NTS, CSS, PMS, ASF, Police aur general recruitment ke authentic preparation books, notes aur past papers.
-  d) Gadgets & Stationery: Study table essentials aur student accessories.
+4. E-COMMERCE STORE & PRODUCTS:
+- Store par Clothes (Interview suits, shirts), Watches, Authentic Books/Notes (PPSC, FPSC, NTS, etc.), aur Gadgets dastiyab hain.
 
-=======================================================
-5. E-COMMERCE STORE POLICIES (Kharidari ke Qawaneen)
-=======================================================
-- Payment Policy (Ahem - No Cash on Delivery):
-  "Hamare store par Cash on Delivery (COD) ki sahulat mojood NAHI hai. Tamam orders ke liye payment HAMESHA ADVANCE ada karni hoti hai (JazzCash / EasyPaisa / Bank Transfer ke zariye). Payment confirm hone ke baad parcel dispatch kiya jata hai."
+5. PAYMENT & STORE POLICIES:
+- Payment Policy: Cash on Delivery (COD) bilkul NAHI hai. Tamam orders ke liye 100% ADVANCE payment lazmi hai (JazzCash/EasyPaisa/Bank Transfer).
+- Delivery Time: 2 se 4 working days pore Pakistan mein.
 
-- Order Kaise Karein?
-  "Aap getreadyforjobs.com ke Shopping section par ja kar product select karein, details darj karein aur advance payment process complete karke apna order book karein."
-
-- Delivery Time:
-  "Advance payment verification ke baad pore Pakistan mein parcel aam taur par 2 se 4 working days ke andar deliver kar diya jata hai."
-
-- Return / Exchange Policy:
-  "Agar product mein koi defect ya damage ho, to parcel milne ke 3 se 5 din ke andar hamari support team se rabta karke exchange process shuru karwa sakte hain."
-
-- Quality Guarantee:
-  "Hamare store par mojood tamam clothes, watches aur authentic books premium aur verified quality ki hoti hain, jo students aur professionals ke standards ke mutabiq tayyar ki gayi hain."
-
-=======================================================
-6. TONE & COMMUNICATION STYLE
-=======================================================
-- Zaban: Saaf, aasan aur pur-khaloos Roman Urdu ya English.
-- Andaz: Polite, professional aur helpful. Payment ke baray mein clear aur respectful rahein ke policy ke mutabiq transaction 100% advance payment par hi process hoti hai.
+6. TONE:
+- Saaf, helpful Roman Urdu ya English mein step-by-step jawab dein.
 `;
-
-const AVAILABLE_MODELS = [
-  "gemini-1.5-flash",
-  "gemini-1.5-pro"
-];
 
 app.post('/api/chat', async (req, res) => {
   try {
     const userPrompt = req.body.prompt || req.body.message || '';
     if (!userPrompt) {
-      return res.status(400).json({ error: 'Message is required' });
+      return res.status(400).json({ reply: 'Sawal likhna zaroori hai.' });
     }
 
-    let reply = null;
-    for (const modelName of AVAILABLE_MODELS) {
-      try {
-        const model = genAI.getGenerativeModel({ model: modelName });
-        const fullPrompt = `${SYSTEM_PROMPT}\n\nCandidate: ${userPrompt}`;
-        const result = await model.generateContent(fullPrompt);
-        reply = result.response.text();
-        if (reply) break;
-      } catch (err) {
-        console.warn(`Model ${modelName} failed, trying next...`);
-      }
+    if (!apiKey) {
+      return res.status(500).json({ reply: 'GEMINI_API_KEY set nahi hai Vercel par.' });
     }
 
-    if (!reply) {
-      throw new Error("Tamam AI models busy hain.");
-    }
+    // Direct Gemini Flash Model call
+    const model = genAI.getGenerativeModel({ 
+      model: "gemini-1.5-flash",
+      systemInstruction: SYSTEM_PROMPT 
+    });
 
-    res.json({ reply: reply });
+    const result = await model.generateContent(userPrompt);
+    const responseText = result.response.text();
+
+    return res.json({ reply: responseText });
   } catch (error) {
-    console.error("Chat error:", error);
-    res.status(500).json({ error: "Backend se rabta nahi ho saka. Dobara koshish karein." });
+    console.error("Gemini Error:", error);
+    // Asal error dekhne ke liye taake pata chale kya masla hai
+    return res.status(500).json({ 
+      reply: `Gemini issue: ${error.message || "Model response nahi de raha."}` 
+    });
   }
+});
+
+// Health check
+app.get('/', (req, res) => {
+  res.send('Get Ready For Job AI Backend is Running!');
 });
 
 const PORT = process.env.PORT || 3000;
