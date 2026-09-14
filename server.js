@@ -29,7 +29,7 @@ Hamesha darj zail usoolon aur maloomat ke mutabiq jawab dein:
 - Daily fresh job alerts (WhatsApp Channel): https://whatsapp.com/channel/0029VbBtR4f2P59eOgCX5P3s
 
 3. PROFESSIONAL ONLINE APPLY SERVICE (Rs. 450):
-- Agar candidate apply na kar sake: Hamari team apply karegi.
+- Agar candidate apply na kar sake: Hamari expert team apply karegi.
 - Apply Fee: Sirf Rs. 450 (Advance payment).
 - WhatsApp Channel join karein: https://whatsapp.com/channel/0029VbBtR4f2P59eOgCX5P3s
 
@@ -44,6 +44,14 @@ Hamesha darj zail usoolon aur maloomat ke mutabiq jawab dein:
 - Saaf, helpful Roman Urdu ya English mein step-by-step jawab dein.
 `;
 
+// Supported model names in Google AI Studio
+const CANDIDATE_MODELS = [
+  "gemini-1.5-flash-latest",
+  "gemini-pro",
+  "gemini-1.0-pro",
+  "gemini-1.5-pro-latest"
+];
+
 app.post('/api/chat', async (req, res) => {
   try {
     const userPrompt = req.body.prompt || req.body.message || '';
@@ -52,29 +60,38 @@ app.post('/api/chat', async (req, res) => {
     }
 
     if (!apiKey) {
-      return res.status(500).json({ reply: 'GEMINI_API_KEY set nahi hai Vercel par.' });
+      return res.status(500).json({ reply: 'GEMINI_API_KEY Vercel par configure nahi hai.' });
     }
 
-    // Direct Gemini Flash Model call
-    const model = genAI.getGenerativeModel({ 
-      model: "gemini-1.5-flash",
-      systemInstruction: SYSTEM_PROMPT 
-    });
+    const fullPrompt = `${SYSTEM_PROMPT}\n\nUser Question: ${userPrompt}`;
+    let responseText = null;
+    let lastError = null;
 
-    const result = await model.generateContent(userPrompt);
-    const responseText = result.response.text();
+    for (const modelName of CANDIDATE_MODELS) {
+      try {
+        const model = genAI.getGenerativeModel({ model: modelName });
+        const result = await model.generateContent(fullPrompt);
+        responseText = result.response.text();
+        if (responseText) break;
+      } catch (err) {
+        lastError = err;
+        console.warn(`Model ${modelName} not available, switching to fallback...`);
+      }
+    }
+
+    if (!responseText) {
+      throw lastError || new Error("Koi bhi model available nahi mila.");
+    }
 
     return res.json({ reply: responseText });
   } catch (error) {
     console.error("Gemini Error:", error);
-    // Asal error dekhne ke liye taake pata chale kya masla hai
     return res.status(500).json({ 
       reply: `Gemini issue: ${error.message || "Model response nahi de raha."}` 
     });
   }
 });
 
-// Health check
 app.get('/', (req, res) => {
   res.send('Get Ready For Job AI Backend is Running!');
 });
